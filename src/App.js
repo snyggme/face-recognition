@@ -4,7 +4,24 @@ import Logo from './Components/Logo/Logo';
 import ImageLinkForm from './Components/ImageLinkForm/ImageLinkForm';
 import Rank from './Components/Rank/Rank';
 import Particles from "react-tsparticles";
+import FaceRecognition from './Components/FaceRecognition/FaceRecognition';
 
+let raw = {
+	"user_app_id": {
+		  "user_id": "6tlu7ompr2h0",
+		  "app_id": "7da04a8ddae3430ea28d433edebd2583"
+	  },
+	"inputs": [
+	  {
+		"data": {
+		  "image": {
+			"url": ""
+		  }
+		}
+	  }
+	]
+};
+  
 const particleOptions = {
 	fpsLimit: 120,
 	interactivity: {
@@ -79,18 +96,74 @@ const particleOptions = {
 }
 
 class App extends Component {
+	constructor() {
+		super();
+		this.state = {
+			input: '',
+			imageUrl: '',
+			box: {}
+		}
+	}
+
+	calculateFaceLocation = (data) => {
+		const clarifaiFace = data.regions[0].region_info.bounding_box;
+		const image = document.getElementById('inputImage');
+		const width = Number(image.width);
+		const height = Number(image.height);
+		
+		return {
+			leftCol: clarifaiFace.left_col * width,
+			topRow: clarifaiFace.top_row * height,
+			rightCol: width - (clarifaiFace.right_col * width),
+			bottomRow: height - (clarifaiFace.bottom_row * height)
+		}
+	}
+
+	displayFaceBox = (box) => {
+		this.setState({ box })
+	}
+
+	onInputChange = (event) => {
+		this.setState({ input: event.target.value })
+	}
+
+	onSubmit = async () => {
+		this.setState({imageUrl: this.state.input})
+		raw.inputs[0].data.image.url = this.state.input;
+
+		const clarifaiRequestOptions = {
+			method: 'POST',
+			headers: {
+				'Accept': 'application/json',
+			  	'Authorization': 'Key 17e2b9c5389341e596032d35f9a3944c'
+			},
+			body: JSON.stringify(raw),
+		};
+
+		try {
+			const response = await fetch("https://api.clarifai.com/v2/models/a403429f2ddf4b49b307e318f00e528b/outputs", clarifaiRequestOptions);
+			const result = await response.json();
+			this.displayFaceBox(this.calculateFaceLocation(result.outputs[0].data));
+		} catch (e) {
+			console.log('error', e);
+		}
+	}
 	render() {
 		return (
 			<div className="App">
 				<Particles
+					className='particles'
 					id="tsparticles"
 					options={particleOptions}
 				/>
 				<Navigation />
 				<Logo />
 				<Rank />
-				<ImageLinkForm />
-				{/* <FaceRecognition /> */}
+				<ImageLinkForm 
+					onInputChange={this.onInputChange} 
+					onButtonSubmit={this.onSubmit} 
+				/>
+				<FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl} />
 			</div>
 		);
   	}
