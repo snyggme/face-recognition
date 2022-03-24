@@ -5,6 +5,8 @@ import ImageLinkForm from './Components/ImageLinkForm/ImageLinkForm';
 import Rank from './Components/Rank/Rank';
 import Particles from "react-tsparticles";
 import FaceRecognition from './Components/FaceRecognition/FaceRecognition';
+import SignForm from './Components/SignForm/SignForm';
+import Register from './Components/Register/Register';
 
 let raw = {
 	"user_app_id": {
@@ -39,17 +41,17 @@ const particleOptions = {
 		modes: {
 			bubble: {
 				distance: 400,
-				duration: 2,
+				// duration: 2,
 				opacity: 0.8,
 				size: 40,
 			},
 			push: {
 				quantity: 4,
 			},
-			repulse: {
-				distance: 200,
-				duration: 0.4,
-			},
+			// repulse: {
+			// 	distance: 200,
+			// 	duration: 0.4,
+			// },
 		},
 	},
 	particles: {
@@ -71,7 +73,7 @@ const particleOptions = {
 			enable: true,
 			outMode: "bounce",
 			random: false,
-			speed: 3,
+			// speed: 3,
 			straight: false,
 		},
 		number: {
@@ -101,7 +103,8 @@ class App extends Component {
 		this.state = {
 			input: '',
 			imageUrl: '',
-			box: {}
+			box: {},
+			route: 'signin'
 		}
 	}
 
@@ -148,6 +151,11 @@ class App extends Component {
 			console.log('error', e);
 		}
 	}
+
+	onRouteChange = (route) => {
+		this.setState({ route })
+	}
+
 	render() {
 		return (
 			<div className="App">
@@ -156,14 +164,21 @@ class App extends Component {
 					id="tsparticles"
 					options={particleOptions}
 				/>
-				<Navigation />
-				<Logo />
-				<Rank />
-				<ImageLinkForm 
-					onInputChange={this.onInputChange} 
-					onButtonSubmit={this.onSubmit} 
-				/>
-				<FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl} />
+				<Navigation onRouteChange={this.onRouteChange} />
+				{ this.state.route === 'signin' 
+					?  <SignForm onRouteChange={this.onRouteChange} />
+					: this.state.route === 'signup' 
+						? <Register onRouteChange={this.onRouteChange} />
+						: <div>
+							<Logo />
+							<Rank />
+							<ImageLinkForm 
+								onInputChange={this.onInputChange} 
+								onButtonSubmit={this.onSubmit} 
+							/>
+							<FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl} />
+						</div>
+				}
 			</div>
 		);
   	}
