@@ -82,8 +82,8 @@ export default function SignForm({ onRouteChange }) {
                     </Link>
                 </Grid>
                 <Grid item>
-                    <Link href="#" variant="body2" onClick={() => onRouteChange('signup')}>
-                        {"Don't have an account? Sign Up"}
+                    <Link href="#" variant="body2" onClick={() => onRouteChange('register')}>
+                        {"Don't have an account? Register"}
                     </Link>
                 </Grid>
             </Grid>
