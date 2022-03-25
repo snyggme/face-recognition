@@ -105,8 +105,25 @@ class App extends Component {
 			imageUrl: '',
 			box: {},
 			route: 'signin',
-			isSignedIn: false
+			isSignedIn: false,
+			user: {
+				id: '',
+				name: '',
+				email: '',
+				entries: 0,
+				joined: ''
+			}
 		}
+	}
+
+	loadUser = (data) => {
+		this.setState({ user:{
+			id: data.id,
+			name: data.name,
+			email: data.email,
+			entries: data.entries,
+			joined: data.joined
+		} });
 	}
 
 	calculateFaceLocation = (data) => {
@@ -147,6 +164,21 @@ class App extends Component {
 		try {
 			const response = await fetch("https://api.clarifai.com/v2/models/a403429f2ddf4b49b307e318f00e528b/outputs", clarifaiRequestOptions);
 			const result = await response.json();
+
+			if (result) {
+				const res = await fetch('http://localhost:3000/image', {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						id: this.state.user.id
+					})
+				})
+				const entries = await res.json();
+				this.setState(Object.assign(this.state.user, { entries }))
+			}
+
 			this.displayFaceBox(this.calculateFaceLocation(result.outputs[0].data));
 		} catch (e) {
 			console.log('error', e);
@@ -164,7 +196,7 @@ class App extends Component {
 	}
 
 	render() {
-		const { isSignedIn, box, imageUrl, route, onRouteChange } = this.state;
+		const { isSignedIn, box, imageUrl, route, user: { name, entries } } = this.state;
 		return (
 			<div className="App">
 				<Particles
@@ -176,7 +208,7 @@ class App extends Component {
 				{ route === 'home' 
 					?  <div>
 						<Logo />
-						<Rank />
+						<Rank name={name} entries={entries} />
 						<ImageLinkForm 
 							onInputChange={this.onInputChange} 
 							onButtonSubmit={this.onSubmit} 
@@ -184,8 +216,8 @@ class App extends Component {
 						<FaceRecognition box={box} imageUrl={imageUrl} />
 					</div>
 					: route === 'register' 
-						? <Register onRouteChange={this.onRouteChange} />
-						: <SignForm onRouteChange={this.onRouteChange} />
+						? <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
+						: <SignForm onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
 				}
 			</div>
 		);
