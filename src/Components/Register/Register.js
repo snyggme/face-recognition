@@ -126,7 +126,7 @@ class Register extends Component {
                             variant="contained"
                             sx={{ mt: 3, mb: 2, pt: 1.2, pb: 1.2}}
                         >
-                            Sign In
+                            Register
                         </Button>
                         <Grid container justifyContent="flex-end">
                             <Grid item>
