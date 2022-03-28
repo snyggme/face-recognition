@@ -7,22 +7,6 @@ import Particles from "react-tsparticles";
 import FaceRecognition from './Components/FaceRecognition/FaceRecognition';
 import SignForm from './Components/SignForm/SignForm';
 import Register from './Components/Register/Register';
-
-let raw = {
-	"user_app_id": {
-		  "user_id": "6tlu7ompr2h0",
-		  "app_id": "7da04a8ddae3430ea28d433edebd2583"
-	  },
-	"inputs": [
-	  {
-		"data": {
-		  "image": {
-			"url": ""
-		  }
-		}
-	  }
-	]
-};
   
 const particleOptions = {
 	fpsLimit: 120,
@@ -97,6 +81,21 @@ const particleOptions = {
 	detectRetina: true,
 }
 
+const initialState = {
+	input: '',
+	imageUrl: '',
+	box: {},
+	route: 'signin',
+	isSignedIn: false,
+	user: {
+		id: '',
+		name: '',
+		email: '',
+		entries: 0,
+		joined: ''
+	}
+}
+
 class App extends Component {
 	constructor() {
 		super();
@@ -150,22 +149,22 @@ class App extends Component {
 
 	onSubmit = async () => {
 		this.setState({imageUrl: this.state.input})
-		raw.inputs[0].data.image.url = this.state.input;
-
-		const clarifaiRequestOptions = {
-			method: 'POST',
-			headers: {
-				'Accept': 'application/json',
-			  	'Authorization': 'Key 17e2b9c5389341e596032d35f9a3944c'
-			},
-			body: JSON.stringify(raw),
-		};
 
 		try {
-			const response = await fetch("https://api.clarifai.com/v2/models/a403429f2ddf4b49b307e318f00e528b/outputs", clarifaiRequestOptions);
-			const result = await response.json();
+			const apiResponse = await fetch('http://localhost:3000/imageurl', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					url: this.state.input
+				})
+			})
+			const face = await apiResponse.json();
 
-			if (result) {
+			if (face) {
+				this.displayFaceBox(this.calculateFaceLocation(face));
+
 				const res = await fetch('http://localhost:3000/image', {
 					method: 'PUT',
 					headers: {
@@ -176,10 +175,9 @@ class App extends Component {
 					})
 				})
 				const entries = await res.json();
+
 				this.setState(Object.assign(this.state.user, { entries }))
 			}
-
-			this.displayFaceBox(this.calculateFaceLocation(result.outputs[0].data));
 		} catch (e) {
 			console.log('error', e);
 		}
@@ -187,7 +185,7 @@ class App extends Component {
 
 	onRouteChange = (route) => {
 		if (route === 'signout') {
-			this.setState({ isSignedIn: false })
+			this.setState(initialState)
 		} else if (route === 'home') {
 			this.setState({ isSignedIn: true })
 		}
