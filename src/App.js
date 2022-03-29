@@ -6,7 +6,6 @@ import Rank from './Components/Rank/Rank';
 import Particles from "react-tsparticles";
 import FaceRecognition from './Components/FaceRecognition/FaceRecognition';
 import SignForm from './Components/SignForm/SignForm';
-import Register from './Components/Register/Register';
   
 const particleOptions = {
 	fpsLimit: 120,
@@ -187,10 +186,13 @@ class App extends Component {
 		if (route === 'signout') {
 			this.setState(initialState)
 		} else if (route === 'home') {
-			this.setState({ isSignedIn: true })
+			this.setState({ 
+				isSignedIn: true,
+				route
+			 })
+		} else {
+			this.setState({ route })
 		}
-
-		this.setState({ route })
 	}
 
 	render() {
@@ -213,9 +215,7 @@ class App extends Component {
 						/>
 						<FaceRecognition box={box} imageUrl={imageUrl} />
 					</div>
-					: route === 'register' 
-						? <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
-						: <SignForm onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
+					: <SignForm onRouteChange={this.onRouteChange} loadUser={this.loadUser} route={route} />
 				}
 			</div>
 		);
