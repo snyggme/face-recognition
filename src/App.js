@@ -151,7 +151,7 @@ class App extends Component {
 		this.setState({imageUrl: this.state.input})
 
 		try {
-			const apiResponse = await fetch('http://localhost:3000/imageurl', {
+			const apiResponse = await fetch('https://guarded-crag-64592.herokuapp.com/imageurl', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -165,7 +165,7 @@ class App extends Component {
 			if (face) {
 				this.displayFaceBox(this.calculateFaceLocation(face));
 
-				const res = await fetch('http://localhost:3000/image', {
+				const res = await fetch('https://guarded-crag-64592.herokuapp.com/image', {
 					method: 'PUT',
 					headers: {
 						'Content-Type': 'application/json'

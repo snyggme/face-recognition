@@ -35,7 +35,7 @@ class Register extends Component {
     handleSubmit = async (event) => {
         event.preventDefault();
 
-        const response = await fetch('http://localhost:3000/register', {
+        const response = await fetch('https://guarded-crag-64592.herokuapp.com/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
